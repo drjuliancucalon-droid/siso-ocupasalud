@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>SISO - Sistema de Salud Ocupacional</title>
+    <!-- PWA: instalable como app nativa -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0891b2" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="SISO" />
+    <meta name="description" content="OcupaSalud — Sistema de Historia Clínica Ocupacional" />
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>if(window.pdfjsLib) window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.__SISO_CONFIG = {
+        sbUrl: "https://yqrrktrgoijgzccrxnpz.supabase.co",
+        sbKey: "sb_publishable_K88qYuJ9wsWjQqnIhLVK7Q_NroFvPI7",
+        sbServiceKey: "",
+        cloudinaryCloud: "dsh8xud2s",
+        cloudinaryPreset: "siso_unsigned",
+      };
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
