@@ -1,9 +1,39 @@
+# Dependencias
 node_modules/
+.pnpm-store/
+
+# Build
 dist/
+.vite/
+
+# Entorno
 .env
 .env.local
 .env.*.local
+
+# Wrangler
+.wrangler/
+wrangler.toml.bak
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
 *.log
 npm-debug.log*
-.DS_Store
+
+# Tests
 coverage/
+.nyc_output/
+
+# Temporales
+*.tmp
+*.temp

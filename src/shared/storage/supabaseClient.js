@@ -179,4 +179,4 @@ export const readArrayFromSupabase = async (supabaseKey, localKey) => {
   } catch { return []; }
 };
 
-export {
+export { _SB_URL, _SB_KEY, _SB_HEADERS };
