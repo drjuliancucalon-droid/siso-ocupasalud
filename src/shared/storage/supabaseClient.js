@@ -14,9 +14,13 @@ const _cfgSafeKey = (v) =>
   typeof v === 'string' && v.length > 20 && v.length < 200 ? v : null;
 
 const _SB_URL =
-  _cfgSafeUrl(_cfgRaw.sbUrl) || 'https://yqrrktrgoijgzccrxnpz.supabase.co';
+  _cfgSafeUrl(_cfgRaw.sbUrl) ||
+  _cfgSafeUrl(import.meta.env?.VITE_SUPABASE_URL) ||
+  '';
 const _SB_KEY =
-  _cfgSafeKey(_cfgRaw.sbKey) || 'sb_publishable_K88qYuJ9wsWjQqnIhLVK7Q_NroFvPI7';
+  _cfgSafeKey(_cfgRaw.sbKey) ||
+  _cfgSafeKey(import.meta.env?.VITE_SUPABASE_ANON_KEY) ||
+  '';
 
 const _SB_HEADERS = {
   apikey: _SB_KEY,
@@ -175,4 +179,4 @@ export const readArrayFromSupabase = async (supabaseKey, localKey) => {
   } catch { return []; }
 };
 
-export { _SB_URL, _SB_KEY, _SB_HEADERS };
+export {
