@@ -16,11 +16,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: '24'
+          cache: 'yarn'
 
       - name: Instalar dependencias
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Ejecutar tests
         run: npm test
@@ -54,7 +54,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Instalar Wrangler
         run: npm install -g wrangler
