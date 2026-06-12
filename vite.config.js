@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { execSync } from 'child_process';
-import { writeFileSync } from 'fs';
+import { writeFileSync, mkdirSync } from 'fs';
 
 // FASE 1: Anti-bundle-viejo
 // Genera version.json con commit hash + timestamp en cada build.
@@ -25,6 +25,7 @@ function versionJsonPlugin() {
   return {
     name: 'version-json',
     closeBundle() {
+      mkdirSync('dist', { recursive: true });
       writeFileSync('dist/version.json', JSON.stringify(VERSION, null, 2));
       console.log('[version-json] dist/version.json:', VERSION.version);
     },
