@@ -129,4 +129,4 @@ export const LoginForm = ({ onLogin, onRecuperar }) => {
       </div>
     </div>
   );
-};
+};export default LoginForm;

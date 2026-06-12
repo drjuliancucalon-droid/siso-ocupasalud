@@ -139,4 +139,4 @@ export const PacientesPage = ({ initialPatients = [], userId, onSelectPatient })
       )}
     </div>
   );
-};
+};export default PacientesPage;

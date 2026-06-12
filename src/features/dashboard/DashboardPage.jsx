@@ -33,4 +33,4 @@ export const DashboardPage = ({ userId }) => {
       </div>
     </div>
   );
-};
+};export default DashboardPage;
