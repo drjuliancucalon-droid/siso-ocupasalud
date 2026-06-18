@@ -4,6 +4,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { apiClient } from '../lib/apiClient';
+import { d1WriteArrayMerge } from '../shared/storage/d1Client.js';
 import { _canUse, _secretariaPuede, PLAN_CONFIG, SECRETARIA_PERMISOS_DEFAULT } from '../shared/data/planConfig.js';
 
 const MAX_LOGIN_ATTEMPTS = 5;
@@ -69,13 +70,12 @@ export const useAuthStore = create(
         }
       },
 
-      // Temporary login for transition period (uses local auth like monolith)
-      // Sets isLocalAuth=true so data hooks skip backend and go straight to Supabase
-      loginLocal: (user) => {
+      // Login local (sesión desde localStorage) — también sincroniza a D1
+      loginLocal: async (user) => {
         set({
           currentUser: user,
           isAuthenticated: true,
-          isLocalAuth: true, // Flag: skip backend API calls, use Supabase direct
+          isLocalAuth: true,
           token: null,
           loginAttempts: 0,
           blockedUntil: null,
@@ -83,9 +83,22 @@ export const useAuthStore = create(
           mustChangePassword: !!user.mustChangePassword,
           twoFARequired: false,
         });
+
+        // Sincronizar sesión a D1 para multi-dispositivo
+        try {
+          await d1WriteArrayMerge('siso_auth_sessions', [{
+            id: user.id || user.user,
+            user,
+            loginAt: new Date().toISOString(),
+            isLocalAuth: true,
+          }], 'id');
+        } catch {
+          // No crítico: queda en localStorage
+        }
       },
 
-      logout: () => {
+      logout: async () => {
+        const { currentUser } = get();
         set({
           currentUser: null,
           token: null,
@@ -96,6 +109,13 @@ export const useAuthStore = create(
           mustChangePassword: false,
           twoFARequired: false,
         });
+
+        // Remover sesión de D1
+        try {
+          await d1WriteArrayMerge('siso_auth_sessions', [], 'id');
+        } catch {
+          // No crítico
+        }
       },
 
       resetActivity: () => {

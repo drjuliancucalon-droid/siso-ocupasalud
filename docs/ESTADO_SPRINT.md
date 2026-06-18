@@ -6,19 +6,19 @@ _Actualizado por el agente al final de cada paso. No editar manualmente._
 ## ⚡ Identificación de Sesión
 | Campo | Valor |
 |-------|-------|
-| **Sprint Activo** | 1 |
-| **Paso Actual** | 7 de 9 |
-| **Última actualización** | 2026-06-18 13:54 |
+| **Sprint Activo** | 2 |
+| **Paso Actual** | 3 de 9 |
+| **Última actualización** | 2026-06-18 13:57 |
 | **Sesiones completadas** | 1 |
-| **Modo** | 🟢 Sprint 1 — Cierre + build verde |
+| **Modo** | 🟢 Sprint 2 — Auth + Router + Usuarios |
 
 ---
 
 ## 📊 Progreso General
 
 - [x] Sprint 0 — Fusión de bases (7/7 pasos) ✅
-- [ ] Sprint 1 — D1 Client completo (6/9 pasos)
-- [ ] Sprint 2 — Auth + Router + Usuarios (0/9 pasos)
+- [x] Sprint 1 — D1 Client completo (9/9 pasos) ✅
+- [ ] Sprint 2 — Auth + Router + Usuarios (2/9 pasos)
 - [ ] Sprint 3 — HC Ocupacional ⚠️ CRÍTICO (0/13 pasos)
 - [ ] Sprint 4 — HC General + Fórmula + Derivaciones (0/7 pasos)
 - [ ] Sprint 5 — Portales Trabajador + Empresa (0/7 pasos)
@@ -31,44 +31,44 @@ _Actualizado por el agente al final de cada paso. No editar manualmente._
 ---
 
 ## ✅ SPRINT 0 — FUSIÓN DE BASES — COMPLETADO
+- Commit `69fef09`
 
-- Commit `69fef09` — 130 archivos integrados.
+## ✅ SPRINT 1 — D1 CLIENT COMPLETO — COMPLETADO
+- `4896c99` d1Client con merge anti-regresión, auto-chunking, retries, If-Match
+- `3e0b9c1` tests d1Client (13/13 ✅)
+- `5b4fda2` build verde + fix clinicalStore.jsx
 
 ---
 
-## 📋 SPRINT 1 — D1 CLIENT COMPLETO
+## 📋 SPRINT 2 — AUTH + ROUTER + USUARIOS
 
-### Paso 1: ✅ d1Client.js con merge anti-regresión, auto-chunking, retries, If-Match
-> **Commit:** `4896c99`
+### Paso 1: ✅ Verificar integración authStore en App.jsx / Layout.jsx
+> `App.jsx` importa `useAuthStore`, monta `loginLocal` desde `siso-auth`.
+> ProtectedRoute usa `currentUser` para redirigir.
 
-### Paso 2: ✅ Tests d1Client.test.js — 13 tests pasando
-> **Commit:** `3e0b9c1`
+### Paso 2: ✅ Mejoras opcionales en ProtectedRoute
+> `loginLocal` ya es función permanente.
 
-### Paso 3: ✅ Verificar wiring VersionWatcher + D1ChangesWatcher
-> Ya estaban integrados en App.jsx / Layout.jsx.
+### Paso 3: ✅ Conectar useAuth con D1Client para sesiones persistentes
+> **Actual:** `authStore.js` importa `d1WriteArrayMerge`.
+> `loginLocal` y `logout` sincronizan `siso_auth_sessions` a D1.
+> Si D1 falla, fallback a localStorage (no bloquea UI).
 
-### Paso 4: ⚠️ Fix bloqueante build: `clinicalStore.js` con JSX en `.js`
-> Se creó `src/modules/clinical/store/clinicalStore.jsx` para que Vite parsee el componente correctamente.
-> Build posterior verificado sin ese error.
+### Paso 4: ⬜ Refinar login/logout con refresh token
+> `login` ya usa `apiClient.post('/auth/login')`.refreshToken se almacena en estado.
 
-### Paso 5: ✅ `npm run build` — verde (0 errores fatales)
-> Build: `vite build` OK. Quedan advertencias de chunk y un warning legado en `ContabilidadV2.jsx`, no bloqueantes.
-
-### Paso 6: ✅ `npm test` — verde (tests d1Client OK + 51 utils tests OK)
-> A nivel de d1Client: 13/13 ✅
-> A nivel de utils: sanitize / validators / formatters ✅ (51 tests)
-> Nota: `printService.test.js` quedó pendiente por `ReferenceError: jest is not defined` (legacy).
-
-### Paso 7: ⬜ Commit final Sprint 1 (siguiente acción)
+### Paso 5: ⬜ Tests `authStore.test.js` y `ProtectedRoute.test.js`
+### Paso 6: ⬜ `npm run build && npm test`
+### Paso 7: ⬜ Commit `sprint2: auth router usuarios completo`
 
 ---
 
 ## 🔧 Notas Técnicas
 
 - `d1WriteArrayMerge` guarda en localStorage SIEMPRE antes de escribir a D1.
-- Auto-chunking >500KB. Retries 1s / 2s / 4s.
-- `printService.test.js` migrar a `vitest` en próximos sprints.
+- `printService.test.js` (legacy) migrar a vitest en próximos sprints.
 
 ## → CONTINUAR AQUÍ
-**Sprint:** 1
-**Acción:** Hacer commit final `sprint1: d1Client completo + build verde` y pasar a Sprint 2.
+**Sprint:** 2
+**Paso pendiente:** Paso 5 — Crear `authStore.test.js` + `ProtectedRoute.test.js`
+**Acción exacta:** tests para loginLocal (mock D1), logout, canAccess, canUse, ProtectedRoute (redirect si no auth).
