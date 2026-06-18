@@ -114,6 +114,7 @@ export default function App() {
         <Route path="/portal" element={<WorkerPortalPage />} />
         <Route path="/portal/empresa" element={<PortalEmpresaPage />} />
         <Route path="/portal/empresa/certificados" element={<PortalCertificadosEmpresa />} />
+        <Route path="/portal/empresa/:companyId/certificados" element={<PortalCertificadosEmpresa />} />
         <Route path="/verificar" element={<VerificacionPage />} />
         <Route path="/certificado/:code" element={<CertificadoPage />} />
 

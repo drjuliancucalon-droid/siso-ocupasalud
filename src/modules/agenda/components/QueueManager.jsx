@@ -4,25 +4,36 @@ import { sp, _ls } from '../../../shared/lib/storage';
 
 const STORAGE_KEY = 'siso_agendados';
 
-export const QueueManager = () => {
+export const QueueManager = ({ appointments: externalAppointments }) => {
   const [cola, setCola] = useState([]);
   const [ahora, setAhora] = useState(Date.now());
   const intervaloRef = useRef(null);
 
   const hoy = new Date().toISOString().slice(0, 10);
 
-  useEffect(() => {
-    cargarCola();
-    intervaloRef.current = setInterval(() => setAhora(Date.now()), 30000);
-    return () => clearInterval(intervaloRef.current);
-  }, []);
-
-  const cargarCola = () => {
-    const todas = sp(STORAGE_KEY, []);
-    const hoyEspera = todas
+  const filtrarHoy = (lista) =>
+    lista
       .filter((c) => c.fecha === hoy && (c.estado === 'espera' || c.estado === 'atendiendo'))
       .sort((a, b) => (a.hora || '').localeCompare(b.hora || ''));
-    setCola(hoyEspera);
+
+  useEffect(() => {
+    if (externalAppointments && externalAppointments.length > 0) {
+      setCola(filtrarHoy(externalAppointments));
+    } else {
+      const todas = sp(STORAGE_KEY, []);
+      setCola(filtrarHoy(todas));
+    }
+    intervaloRef.current = setInterval(() => setAhora(Date.now()), 30000);
+    return () => clearInterval(intervaloRef.current);
+  }, [externalAppointments]);
+
+  const cargarCola = () => {
+    if (externalAppointments && externalAppointments.length > 0) {
+      setCola(filtrarHoy(externalAppointments));
+    } else {
+      const todas = sp(STORAGE_KEY, []);
+      setCola(filtrarHoy(todas));
+    }
   };
 
   const llamarSiguiente = () => {

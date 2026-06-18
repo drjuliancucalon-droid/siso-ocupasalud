@@ -45,14 +45,14 @@ export default function AgendaPage() {
               <span className="font-bold">Sala de Espera</span>
             </div>
           </div>
-          <QueueManager />
+          <QueueManager appointments={appointments} />
 
           {/* ── CALENDARIO ── */}
           <div className="bg-white rounded-xl border border-gray-200 p-4">
             <h2 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
               <Calendar className="w-4 h-4" /> Calendario de Citas
             </h2>
-            <AgendaView currentUser={currentUser} />
+            <AgendaView currentUser={currentUser} appointments={appointments} />
           </div>
         </>
       )}

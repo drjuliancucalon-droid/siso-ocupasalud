@@ -11,15 +11,19 @@ const STATUS_CONFIG = {
   no_asistio: { label: 'No asistió', color: 'bg-red-100 text-red-800', icon: Clock },
 };
 
-export const AgendaView = ({ currentUser }) => {
+export const AgendaView = ({ currentUser, appointments: externalAppointments }) => {
   const [citas, setCitas] = useState([]);
   const [filtroFecha, setFiltroFecha] = useState(new Date().toISOString().slice(0, 10));
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos');
 
   useEffect(() => {
-    setCitas(sp(STORAGE_KEY, []));
-  }, []);
+    if (externalAppointments && externalAppointments.length > 0) {
+      setCitas(externalAppointments);
+    } else {
+      setCitas(sp(STORAGE_KEY, []));
+    }
+  }, [externalAppointments]);
 
   const guardar = (nuevas) => {
     setCitas(nuevas);

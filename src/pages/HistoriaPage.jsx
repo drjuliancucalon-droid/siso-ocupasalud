@@ -10,6 +10,7 @@ import { printHC, generateHCPrintHTML, openPrintWindow, _printHCClean, PrintStyl
 import { initialOccupPatientState } from '../shared/data/initialStates';
 import { _sha256 } from '../shared/lib/crypto';
 import { _generarCertificadoHTMLNormalizado } from '../shared/lib/printUtils';
+import { d1WriteArrayMerge } from '../shared/storage/d1Client.js';
 
 // Lucide icons — imported ONCE at page level
 import {
@@ -340,12 +341,11 @@ export default function HistoriaPage() {
       hashHC: hcHash,
     };
 
-    // B-02.4: Guardar con 4 claves (monolito líneas 16281-16306)
+    // B-02.4: Guardar con 6 claves D1 (bloqueante) + fallback localStorage
     try {
-      await save('/write/portal/save', portalData, `siso_portal_${code}`);
-      if (data.docNumero) await save('/write/portal/save', portalData, `siso_portal_doc_${(data.docNumero || '').replace(/\s/g, '')}`);
-      // Clave legacy para compatibilidad
-      if (!code.startsWith('CV-')) await save('/write/portal/save', portalData, `siso_portal_CV-${code}`);
+      await d1WriteArrayMerge(`siso_portal_${code}`, [portalData], 'codigoVerificacion');
+      if (data.docNumero) await d1WriteArrayMerge(`siso_portal_doc_${(data.docNumero || '').replace(/\s/g, '')}`, [portalData], 'codigoVerificacion');
+      if (!code.startsWith('CV-')) await d1WriteArrayMerge(`siso_portal_CV-${code}`, [portalData], 'codigoVerificacion');
       // Índice por NIT de empresa (agrega docNumero al array documentos[])
       if (company?.nit) {
         const nitLimpio = (company.nit || '').replace(/[^0-9]/g, '');
@@ -355,7 +355,23 @@ export default function HistoriaPage() {
           if (!existing.documentos.includes(data.docNumero)) existing.documentos.push(data.docNumero);
           existing.updatedAt = now.toISOString();
           existing.nombre = company.nombre || existing.nombre;
-          await save('/write/portal/empresa', existing, `siso_portal_empresa_${nitLimpio}`);
+          await d1WriteArrayMerge(`siso_portal_empresa_${nitLimpio}`, [existing], 'nit');
+          await d1WriteArrayMerge(`siso_portal_empresa_atenciones_${nitLimpio}`, [{
+            id: 'ac_' + Date.now(),
+            empresaNit: nitLimpio,
+            pacienteNombre: data.nombres,
+            docNumero: data.docNumero,
+            tipoExamen: data.tipoExamen,
+            conceptoAptitud: data.conceptoAptitud,
+            fechaAtencion: now.toISOString().split('T')[0],
+            estadoHistoria: 'Cerrada',
+          }], 'id');
+          await d1WriteArrayMerge(`siso_portal_empresa_docs_${nitLimpio}`, [{
+            nit: nitLimpio,
+            docNumero: data.docNumero,
+            fecha: now.toISOString().split('T')[0],
+            tipo: data.tipoExamen,
+          }], 'docNumero');
         }
       }
     } catch (portalErr) { console.warn('[handleCloseHC] portal error:', portalErr); }

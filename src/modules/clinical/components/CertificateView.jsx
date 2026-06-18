@@ -245,18 +245,25 @@ export const CertificateView = ({
         </div>
       )}
 
-      {/* HC Cerrada badge */}
+      {/* HC Cerrada badge + QR */}
       {data.estadoHistoria === 'Cerrada' && (
-        <div className="mx-4 mb-3 bg-emerald-50 border-2 border-emerald-400 rounded-xl px-4 py-3 flex items-center gap-3 no-print">
+        <div className="mx-4 mb-3 bg-emerald-50 border-2 border-emerald-400 rounded-xl px-4 py-3 flex items-center gap-4 no-print">
           <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
             <Lock className="w-4 h-4 text-white" />
           </div>
-          <div>
+          <div className="flex-1">
             <p className="text-xs font-black text-emerald-800">Historia Clínica Firmada y Cerrada</p>
             <p className="text-[10px] text-emerald-600">
               Código de verificación: <span className="font-mono font-bold">{data.codigoVerificacion || '--'}</span>
             </p>
           </div>
+          {data.codigoVerificacion && (
+            <img
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent('https://siso-refactor.pages.dev/verificar?code=' + data.codigoVerificacion)}`}
+              alt="QR verificación"
+              className="w-16 h-16 rounded border border-emerald-200 bg-white"
+            />
+          )}
         </div>
       )}
 

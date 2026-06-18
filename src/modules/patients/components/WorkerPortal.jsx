@@ -4,14 +4,22 @@ import { sp } from '../../../shared/lib/storage';
 
 const PACIENTES_KEY = 'siso_pacientes';
 
-export const WorkerPortal = () => {
-  const [codigo, setCodigo] = useState('');
+export const WorkerPortal = ({ code: codeFromUrl }) => {
+  const [codigo, setCodigo] = useState(codeFromUrl || '');
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
 
-  const buscar = () => {
-    if (!codigo.trim()) {
+  // Buscar automáticamente si se proporciona código desde la URL
+  React.useEffect(() => {
+    if (codeFromUrl) {
+      setCodigo(codeFromUrl);
+      buscarConCodigo(codeFromUrl);
+    }
+  }, [codeFromUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const buscarConCodigo = (codigoBuscar) => {
+    if (!codigoBuscar.trim()) {
       setError('Ingrese su código de verificación');
       return;
     }
@@ -25,8 +33,8 @@ export const WorkerPortal = () => {
       const pacientes = sp(PACIENTES_KEY, []);
       const encontrado = pacientes.find(
         (p) =>
-          (p.codigoVerificacion || p.codigo || '').toUpperCase() === codigo.trim().toUpperCase() ||
-          (p.documento || '') === codigo.trim()
+          (p.codigoVerificacion || p.codigo || '').toUpperCase() === codigoBuscar.trim().toUpperCase() ||
+          (p.documento || '') === codigoBuscar.trim()
       );
 
       if (encontrado) {
@@ -45,6 +53,10 @@ export const WorkerPortal = () => {
       }
       setCargando(false);
     }, 500);
+  };
+
+  const buscar = () => {
+    buscarConCodigo(codigo);
   };
 
   const handleKeyDown = (e) => {
