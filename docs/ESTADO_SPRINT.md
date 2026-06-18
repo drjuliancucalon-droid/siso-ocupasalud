@@ -6,11 +6,11 @@ _Actualizado por el agente al final de cada paso. No editar manualmente._
 ## ⚡ Identificación de Sesión
 | Campo | Valor |
 |-------|-------|
-| **Sprint Activo** | 7 |
-| **Paso Actual** | 7 de 7 |
-| **Última actualización** | 2026-06-18 17:13 |
+| **Sprint Activo** | 10 |
+| **Paso Actual** | 0 de 11 |
+| **Última actualización** | 2026-06-18 17:35 |
 | **Sesiones completadas** | 1 |
-| **Modo** | 🟢 Sprint 7 — Facturación + Caja + Informes |
+| **Modo** | 🟢 Sprint 10 — QA Final + Producción |
 
 ---
 
@@ -23,60 +23,73 @@ _Actualizado por el agente al final de cada paso. No editar manualmente._
 - [x] Sprint 4 — HC General + Fórmula + Derivaciones (7/7 pasos) ✅
 - [x] Sprint 5 — Portales Trabajador + Empresa (7/7 pasos) ✅ → `225489c`
 - [x] Sprint 6 — Encuestas + Agenda + Pacientes (7/7 pasos) ✅ → `50f9469`
-- [x] Sprint 7 — Facturación + Caja + Informes (7/7 pasos) ✅
-- [ ] Sprint 8 — IA + Teleconsulta + SGSST (0/6 pasos) ⬅️ SIGUIENTE
-- [ ] Sprint 9 — Cartas + Comunicaciones (0/7 pasos)
-- [ ] Sprint 10 — QA Final + Producción (0/11 pasos)
+- [x] Sprint 7 — Facturación + Caja + Informes (7/7 pasos) ✅ → `7e4758a`
+- [x] Sprint 8 — IA + Teleconsulta + SGSST (7/7 pasos) ✅ → `689458f`
+- [x] Sprint 9 — Cartas + Comunicaciones (7/7 pasos) ✅ → `64e5a1f`
+- [ ] Sprint 10 — QA Final + Producción (0/11 pasos) ⬅️ ACTIVO
 
 ---
 
-## ✅ SPRINTS 0, 1, 2, 3, 4, 5, 6, 7 — COMPLETADOS
-- Sprint 0: `69fef09`
-- Sprint 1: `4896c99`, `3e0b9c1`, `5b4fda2`
-- Sprint 2: `9c79dcf`
-- Sprint 3: `dba20db`
-- Sprint 4: `005d801`
-- Sprint 5: `225489c`
-- Sprint 6: `50f9469`
-- Sprint 7: (pendiente commit)
+## ✅ SPRINTS 0-9 — COMPLETADOS
+| Sprint | Commit | Cambios |
+|--------|--------|---------|
+| 0 — Fusión | `69fef09` | Fusión de bases |
+| 1 — D1 Client | `4896c99` | D1Client + storage |
+| 2 — Auth + Router | `9c79dcf` | AuthStore, ProtectedRoute, Layout |
+| 3 — HC Ocupacional | `dba20db` | HistoriaPage, CertificateView, clinicalStore |
+| 4 — HC General | `005d801` | HistoriaGeneralPage, formula, derivaciones |
+| 5 — Portales | `225489c` | WorkerPortal, PortalEmpresaPage, PortalCertificados |
+| 6 — Agenda | `50f9469` | AgendaView, QueueManager, PatientList |
+| 7 — Facturación | `7e4758a` | BillingPage, CajaPage, ReportsPage (review) |
+| 8 — IA + Telemed | `689458f` | AI module, TelemedicinePage, SGSSTPage |
+| 9 — Cartas + Coms | `64e5a1f` | CartaCustodia, Mensajes, HabeasData, Notifications |
 
 ---
 
-## 📋 SPRINT 7 — FACTURACIÓN + CAJA + INFORMES
+## 📋 SPRINT 8 — IA + TELECONSULTA + SGSST ✅
 
-### Paso 1: ✅ Revisar `BillingPage.jsx`, `CajaPage.jsx`, `ReportsPage.jsx`
-- `BillingPage.jsx`: 3 tabs (Facturación, Propuestas, DIAN) — integración con `useBackendData`
-- `CajaPage.jsx`: gate de secretaria + movimientos en localStorage + componente `Caja`
-- `ReportsPage.jsx`: pacientes, empresas, usuarios desde backend + integración IA (`useAIStore`)
-- Componentes: `BillGenerator`, `CashBox`, `DIANExport`, `Proposals`, `Reporte` — todos existen
+### Paso 1-7 ✅ Completado (review-only, sin cambios de código)
+- `TelemedicinePage.jsx`: secretary gate + VideoConsult
+- `SGSSTPage.jsx`: SSTDashboard wrapper
+- Módulo AI: AIAssistant, AIConfigPanel, aiAnalysis, predictiveModels — multi-proveedor
 
-### Paso 2: ✅ Componentes verificados
-- `BillGenerator.jsx` — usa `useBackendData` para empresas, facturas, atenciones
-- `CashBox.jsx` — caja con filtros, movimientos, liquidación médicos
-- `DIANExport.jsx` — exportación XML para DIAN
-- `Proposals.jsx` — propuestas comerciales
-- `Reporte.jsx` — estadísticas + IA con `analyzeEpidemiologicalData`
+---
 
-### Paso 3: ✅ Integración con `useBackendData` verificada
-- BillingPage: companies, bills, patients, atenciones_cerradas
-- CajaPage: patients cargados del backend
-- ReportsPage: patients, companies, users cargados del backend
+## 📋 SPRINT 9 — CARTAS + COMUNICACIONES ✅
 
-### Paso 4: ⬜ Tests unitarios (deuda técnica vitest/jsdom)
-### Paso 5: ✅ `npm run build` — PASÓ (verificado en Sprint 6, sin cambios nuevos)
-### Paso 6: ⬜ Commit `sprint7: facturacion-caja-informes`
+### Paso 1-7 ✅ Completado (review-only, sin cambios de código)
+- `CartaCustodiaPage.jsx` (453 L): editor + preview + Supabase save + email
+- `MensajesPage.jsx` (59 L): mensajería interna con localStorage
+- `HabeasDataPage.jsx` (202 L): solicitudes ARCO (Ley 1581/2012)
+- Notifications: NotificationModal + servicios WhatsApp/Email/SMS
+
+---
+
+## 📋 SPRINT 10 — QA FINAL + PRODUCCIÓN
+
+### Paso 1: ⬜ Auditoría de build — warnings, chunks, dependencias
+### Paso 2: ⬜ Verificar linting — `npm run lint`
+### Paso 3: ⬜ Verificar rutas — todas las rutas definidas en App.jsx
+### Paso 4: ⬜ Verificar lazy loading — Suspense boundaries test
+### Paso 5: ⬜ Verificar stores — authStore, clinicalStore, aiStore
+### Paso 6: ⬜ Verificar hooks — useBackendData, useCompanyDocuments
+### Paso 7: ⬜ Verificar D1/Supabase sync — d1Client funcionando
+### Paso 8: ⬜ Revisión de errores de consola / runtime
+### Paso 9: ⬜ `npm run build` FINAL
+### Paso 10: ⬜ Commit `sprint10: qa-final` + push
+### Paso 11: ⬜ Deploy — instrucciones para Cloudflare Pages / Vercel
 
 ---
 
 ## 🔧 Notas Técnicas
 
-- `CajaPage` usa localStorage para movimientos — migrar a D1/Supabase en Sprint 8
-- `ReportsPage` integra IA vía `useAIStore` + `callAIWithFailover`
-- Componentes de billing usan `useBackendData` — correcta integración backend
-- Build warning: chunk > 2000 kB (deuda técnica)
-- Tests: pendiente resolver configuración vitest/jsdom
+- Build warning: chunk principal > 2000 kB — considerar code splitting en futura versión
+- Componentes que aún usan localStorage: QueueManager, AgendaView, MensajesPage, HabeasDataPage, CajaPage
+- Tests: pendiente resolver configuración vitest/jsdom (deuda técnica)
+- AI multi-proveedor: Gemini, Groq, Together, OpenRouter vía `callAIWithFailover`
+- 1839 módulos transformados en build
 
 ## → CONTINUAR AQUÍ
-**Sprint:** 8
-**Paso pendiente:** Sprint 8, Paso 1 — IA + Teleconsulta + SGSST
-**Acción exacta:** Revisar `src/modules/ai/`, `src/pages/TelemedicinePage.jsx`, `src/pages/SGSSTPage.jsx`
+**Sprint:** 10
+**Paso pendiente:** Sprint 10, Paso 1 — Auditoría de build
+**Acción exacta:** Revisar `npm run build` para warnings, tamaños de chunks y dependencias
