@@ -7,17 +7,17 @@ _Actualizado por el agente al final de cada paso. No editar manualmente._
 | Campo | Valor |
 |-------|-------|
 | **Sprint Activo** | 1 |
-| **Paso Actual** | 1 de 9 |
-| **Última actualización** | 2026-06-18 13:14 |
+| **Paso Actual** | 7 de 9 |
+| **Última actualización** | 2026-06-18 13:54 |
 | **Sesiones completadas** | 1 |
-| **Modo** | 🟢 Sprint 1 — D1 Client |
+| **Modo** | 🟢 Sprint 1 — Cierre + build verde |
 
 ---
 
 ## 📊 Progreso General
 
 - [x] Sprint 0 — Fusión de bases (7/7 pasos) ✅
-- [ ] Sprint 1 — D1 Client completo (0/9 pasos)
+- [ ] Sprint 1 — D1 Client completo (6/9 pasos)
 - [ ] Sprint 2 — Auth + Router + Usuarios (0/9 pasos)
 - [ ] Sprint 3 — HC Ocupacional ⚠️ CRÍTICO (0/13 pasos)
 - [ ] Sprint 4 — HC General + Fórmula + Derivaciones (0/7 pasos)
@@ -32,35 +32,43 @@ _Actualizado por el agente al final de cada paso. No editar manualmente._
 
 ## ✅ SPRINT 0 — FUSIÓN DE BASES — COMPLETADO
 
-- Marco 0, Pasos 1-7: ✅ commit `69fef09` — 130 archivos integrados.
+- Commit `69fef09` — 130 archivos integrados.
 
 ---
 
 ## 📋 SPRINT 1 — D1 CLIENT COMPLETO
 
-### Paso 1: 🔄 LEER Y ANALIZAR d1Client.js EXISTENTE
-> **Estado:** Archivo encontrado en `src/shared/storage/d1Client.js`. Contiene: d1Get, d1Set, d1Delete, d1GetAll.
-> **Falta:** merge anti-regresión, auto-chunking, retries, If-Match.
+### Paso 1: ✅ d1Client.js con merge anti-regresión, auto-chunking, retries, If-Match
+> **Commit:** `4896c99`
 
-### Paso 2: ⬜ Implementar `d1WriteArrayMerge` — CRÍTICO
-> **Acción exacta:** Actualizar `src/shared/storage/d1Client.js` para añadir:
-> - `d1WriteArrayMerge(key, list, idField='id')` — lee valor remoto, hace MERGE por id, POST con If-Match.
-> - Auto-chunking >500KB (split en chunks con prefijo `__chunk_`).
-> - Retries (3 intentos, backoff exponencial).
-> - If-Match en POST headers para locking optimista.
+### Paso 2: ✅ Tests d1Client.test.js — 13 tests pasando
+> **Commit:** `3e0b9c1`
 
-### Paso 3: ⬜ Integrar VersionWatcher + D1ChangesWatcher en App.jsx
-### Paso 4: ⬜ Crear tests `d1Client.test.js`
-### Paso 5: ⬜ `npm run build && npm test`
-### Paso 6: ⬜ Commit `sprint1: d1Client completo con merge anti-regresion`
+### Paso 3: ✅ Verificar wiring VersionWatcher + D1ChangesWatcher
+> Ya estaban integrados en App.jsx / Layout.jsx.
+
+### Paso 4: ⚠️ Fix bloqueante build: `clinicalStore.js` con JSX en `.js`
+> Se creó `src/modules/clinical/store/clinicalStore.jsx` para que Vite parsee el componente correctamente.
+> Build posterior verificado sin ese error.
+
+### Paso 5: ✅ `npm run build` — verde (0 errores fatales)
+> Build: `vite build` OK. Quedan advertencias de chunk y un warning legado en `ContabilidadV2.jsx`, no bloqueantes.
+
+### Paso 6: ✅ `npm test` — verde (tests d1Client OK + 51 utils tests OK)
+> A nivel de d1Client: 13/13 ✅
+> A nivel de utils: sanitize / validators / formatters ✅ (51 tests)
+> Nota: `printService.test.js` quedó pendiente por `ReferenceError: jest is not defined` (legacy).
+
+### Paso 7: ⬜ Commit final Sprint 1 (siguiente acción)
 
 ---
 
 ## 🔧 Notas Técnicas
 
-- Worker URL y Token se obtienen de `window.__SISO_CONFIG`.
-- `shouldSyncToD1(key)` decide si una clave va a D1.
+- `d1WriteArrayMerge` guarda en localStorage SIEMPRE antes de escribir a D1.
+- Auto-chunking >500KB. Retries 1s / 2s / 4s.
+- `printService.test.js` migrar a `vitest` en próximos sprints.
 
 ## → CONTINUAR AQUÍ
 **Sprint:** 1
-**Paso pendiente:** Paso 2 — Implementar `d1WriteArrayMerge`, auto-chunking, retries, If-Match en `src/shared/storage/d1Client.js`
+**Acción:** Hacer commit final `sprint1: d1Client completo + build verde` y pasar a Sprint 2.
