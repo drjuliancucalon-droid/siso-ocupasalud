@@ -1,20 +1,52 @@
 // ═══════════════════════════════════════════════════════════════
-// SISO OcupaSalud — App.jsx Refactorizado
-// FASE 4 — ETAPA M: Solo router + composición (~200 líneas)
+// SISO OcupaSalud — App.jsx Refactorizado (SPRINT 0)
+// Router completo con TODAS las páginas + Stores + Watchers
 // ═══════════════════════════════════════════════════════════════
 
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthStore } from './stores/authStore';
 
-// ── Shared imports ─────────────────────────────────────────────
-import { _ls, sp } from './shared/storage/localStorage.js';
-import { LS } from './shared/storage/storageKeys.js';
-import { initSyncManager } from './shared/storage/syncManager.js';
-import { ROLES } from './shared/utils/constants.js';
+// ── Layout (siempre visible para rutas protegidas) ────────────
+import Layout from './app/Layout.jsx';
 
-// ── Lazy-loaded features ───────────────────────────────────────
-const LoginForm = lazy(() => import('./features/auth/LoginForm.jsx'));
-const PacientesPage = lazy(() => import('./features/pacientes/PacientesPage.jsx'));
-const Dashboard = lazy(() => import('./features/dashboard/DashboardPage.jsx'));
+// ── Componentes transversales (watchers) ─────────────────────
+import VersionWatcher from './components/VersionWatcher.jsx';
+import D1ChangesWatcher from './components/D1ChangesWatcher.jsx';
+import StorageHealth from './components/StorageHealth.jsx';
+
+// ── Lazy loading de TODAS las páginas ────────────────────────
+const LoginPage = lazy(() => import('./pages/LoginPage.jsx'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage.jsx'));
+const PatientsPage = lazy(() => import('./pages/PatientsPage.jsx'));
+const HistoriaPage = lazy(() => import('./pages/HistoriaPage.jsx'));
+const HistoriaGeneralPage = lazy(() => import('./pages/HistoriaGeneralPage.jsx'));
+const CompaniesPage = lazy(() => import('./pages/CompaniesPage.jsx'));
+const AgendaPage = lazy(() => import('./pages/AgendaPage.jsx'));
+const BillingPage = lazy(() => import('./pages/BillingPage.jsx'));
+const CajaPage = lazy(() => import('./pages/CajaPage.jsx'));
+const ReportsPage = lazy(() => import('./pages/ReportsPage.jsx'));
+const SGSSTPage = lazy(() => import('./pages/SGSSTPage.jsx'));
+const TelemedicinePage = lazy(() => import('./pages/TelemedicinePage.jsx'));
+const WorkerPortalPage = lazy(() => import('./pages/WorkerPortalPage.jsx'));
+const PortalEmpresaPage = lazy(() => import('./pages/PortalEmpresaPage.jsx'));
+const PortalCertificadosEmpresa = lazy(() => import('./pages/PortalCertificadosEmpresa.jsx'));
+const UsersPage = lazy(() => import('./pages/UsersPage.jsx'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage.jsx'));
+const CertificadoPage = lazy(() => import('./pages/CertificadoPage.jsx'));
+const VerificacionPage = lazy(() => import('./pages/VerificacionPage.jsx'));
+const CartaCustodiaPage = lazy(() => import('./pages/CartaCustodiaPage.jsx'));
+const ContabilidadPage = lazy(() => import('./pages/ContabilidadPage.jsx'));
+const PlanesPage = lazy(() => import('./pages/PlanesPage.jsx'));
+const CotizacionesPage = lazy(() => import('./pages/CotizacionesPage.jsx'));
+const PortafolioPage = lazy(() => import('./pages/PortafolioPage.jsx'));
+const MensajesPage = lazy(() => import('./pages/MensajesPage.jsx'));
+const ARLPage = lazy(() => import('./pages/ARLPage.jsx'));
+const HabeasDataPage = lazy(() => import('./pages/HabeasDataPage.jsx'));
+const ConfigIPSPage = lazy(() => import('./pages/ConfigIPSPage.jsx'));
+const SuperAdminPage = lazy(() => import('./pages/SuperAdminPage.jsx'));
+const BackupPage = lazy(() => import('./pages/BackupPage.jsx'));
 
 // ── Loading fallback ───────────────────────────────────────────
 const LoadingScreen = () => (
@@ -27,102 +59,107 @@ const LoadingScreen = () => (
 );
 
 /**
- * App — Componente principal refactorizado.
- * Maneja autenticación, navegación y composición de features.
+ * Ruta protegida: redirige a /login si no hay sesión
  */
-function App() {
-  const [view, setView] = useState('login');
-  const [currentUser, setCurrentUser] = useState(() => sp(LS.SESSION, null));
-  const [patients, setPatients] = useState([]);
+function ProtectedRoute({ children }) {
+  const { currentUser } = useAuthStore();
+  if (!currentUser) return <Navigate to="/login" replace />;
+  return children;
+}
 
-  // Inicializar sync manager al montar
-  useEffect(() => {
-    initSyncManager();
-    const session = sp(LS.SESSION, null);
-    if (session) {
-      setCurrentUser(session);
-      setView(session.activeTab || 'patients');
-      // Cargar pacientes
-      const patKey = `siso_db_patients_${session.user}`;
-      const stored = sp(patKey, []);
-      setPatients(stored);
-    }
-  }, []);
-
-  // ── Handlers ────────────────────────────────────────────────
-  const handleLogin = (username, password) => {
-    const users = sp(LS.USERS, []);
-    const found = users.find(u => u.user === username);
-    if (found && found.pass === password) {
-      const session = { user: found.user, role: found.rol || found.role, nombre: found.nombre };
-      _ls.setItem(LS.SESSION, JSON.stringify(session));
-      setCurrentUser(session);
-      setView('patients');
-      return { ok: true, user: session };
-    }
-    if (username === 'admin' && password === 'admin123') {
-      const session = { user: 'admin', role: 'administrador', nombre: 'Administrador' };
-      _ls.setItem(LS.SESSION, JSON.stringify(session));
-      setCurrentUser(session);
-      setView('patients');
-      return { ok: true, user: session };
-    }
-    return { ok: false, error: 'Credenciales inválidas' };
-  };
-
-  const handleLogout = () => {
-    _ls.removeItem(LS.SESSION);
-    setCurrentUser(null);
-    setView('login');
-  };
-
-  const handleSelectPatient = (patient) => {
-    _ls.setItem(LS.ACTIVE_FORM, JSON.stringify({ id: patient.id, patientId: patient.id }));
-    setView('form');
-  };
-
-  // ── Render ──────────────────────────────────────────────────
-  if (!currentUser) {
-    return (
-      <Suspense fallback={<LoadingScreen />}>
-        <LoginForm onLogin={handleLogin} />
-      </Suspense>
-    );
-  }
-
+/**
+ * WatchersWrapper — Inyecta los watchers transversales en el Layout
+ */
+function WatchersWrapper({ children }) {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navbar simplificada */}
-      <nav className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <span className="font-bold text-blue-700">OCUPASALUD</span>
-            <button onClick={() => setView('patients')} className={`text-sm px-3 py-1.5 rounded ${view === 'patients' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}>Pacientes</button>
-            <button onClick={() => setView('dashboard')} className={`text-sm px-3 py-1.5 rounded ${view === 'dashboard' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}>Dashboard</button>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-500">{currentUser.nombre || currentUser.user}</span>
-            <button onClick={handleLogout} className="text-sm text-red-600 hover:text-red-700">Salir</button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Contenido principal */}
-      <main className="max-w-7xl mx-auto">
-        <Suspense fallback={<LoadingScreen />}>
-          {view === 'patients' && (
-            <PacientesPage
-              initialPatients={patients}
-              userId={currentUser.user}
-              onSelectPatient={handleSelectPatient}
-            />
-          )}
-          {view === 'dashboard' && <Dashboard userId={currentUser.user} />}
-          {view === 'login' && <LoginForm onLogin={handleLogin} />}
-        </Suspense>
-      </main>
-    </div>
+    <>
+      <VersionWatcher />
+      <D1ChangesWatcher />
+      <StorageHealth />
+      {children}
+    </>
   );
 }
 
-export default App;
+/**
+ * App — Componente principal con React Router
+ */
+export default function App() {
+  const { currentUser, loginLocal } = useAuthStore();
+
+  // Restaurar sesión desde localStorage al iniciar
+  useEffect(() => {
+    if (!currentUser) {
+      try {
+        const stored = localStorage.getItem('siso-auth');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.currentUser) {
+            loginLocal(parsed.currentUser);
+          }
+        }
+      } catch {
+        // Ignorar errores de parseo
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <Routes>
+        {/* ── Ruta pública: Login ── */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* ── Portales públicos (sin autenticación) ── */}
+        <Route path="/portal" element={<WorkerPortalPage />} />
+        <Route path="/portal/empresa" element={<PortalEmpresaPage />} />
+        <Route path="/portal/empresa/certificados" element={<PortalCertificadosEmpresa />} />
+        <Route path="/verificar" element={<VerificacionPage />} />
+        <Route path="/certificado/:code" element={<CertificadoPage />} />
+
+        {/* ── Redirección raíz ── */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+        {/* ── Rutas protegidas con Layout + Watchers ── */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <WatchersWrapper>
+                <Layout />
+              </WatchersWrapper>
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/patients" element={<PatientsPage />} />
+          <Route path="/hc/new" element={<HistoriaPage />} />
+          <Route path="/hc/general" element={<HistoriaGeneralPage />} />
+          <Route path="/companies" element={<CompaniesPage />} />
+          <Route path="/agenda" element={<AgendaPage />} />
+          <Route path="/billing" element={<BillingPage />} />
+          <Route path="/caja" element={<CajaPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/sgsst" element={<SGSSTPage />} />
+          <Route path="/telemedicine" element={<TelemedicinePage />} />
+          <Route path="/users" element={<UsersPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/perfil" element={<ProfilePage />} />
+          <Route path="/custodia" element={<CartaCustodiaPage />} />
+          <Route path="/contabilidad" element={<ContabilidadPage />} />
+          <Route path="/planes" element={<PlanesPage />} />
+          <Route path="/cotizaciones" element={<CotizacionesPage />} />
+          <Route path="/portafolio" element={<PortafolioPage />} />
+          <Route path="/mensajes" element={<MensajesPage />} />
+          <Route path="/arl" element={<ARLPage />} />
+          <Route path="/habeas-data" element={<HabeasDataPage />} />
+          <Route path="/config/ips" element={<ConfigIPSPage />} />
+          <Route path="/admin" element={<SuperAdminPage />} />
+          <Route path="/backup" element={<BackupPage />} />
+        </Route>
+
+        {/* ── Catch-all: redirigir a dashboard ── */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </Suspense>
+  );
+}
